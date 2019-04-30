@@ -9,12 +9,13 @@
 		<p id="errormsg" class="kiwi-welcome-simple-error" style="
 			color: red;
 			float = right;
-			visibility: hidden;">
+			visibility: hidden;"
+			>
 			Passwords Must Match
 		</p>
 		<div>
     	<label for="email">Email:</label><br>
-    	<input kiwi-welcome-simple type="email" v-model="email">
+    	<input kiwi-welcome-simple type="email" v-model="email" autofocus="true">
 		</div>
 		<div>
     	<label for="pass1">Password (8 characters minimum):</label><br>
@@ -25,7 +26,7 @@
     	<input class="kiwi-welcome-simple-password" type="password" v-model="password2" minlength="8" required>
 		</div>
 		<div>
-			<button type="submit">Sign in</button>
+			<button type="submit">Register</button>
 			<button @click="close_reg">Close</button>
 		</div>
 	</form>
@@ -48,15 +49,15 @@ kiwi.plugin('test', function(kiwi, log){
 	var HOSTMASK = 'tripsit/';
 	var COMMAND = 'registerme';
 
-	var get_me = function() {
+	function get_me() {
 		return kiwi.state.getActiveNetwork().currentUser();
 	}
 
-	var my_nick = function() {
+	function my_nick() {
 		return kiwi.state.getActiveNetwork().currentUser().nick;
 	}
 
-	var valid_usr = function() {
+	function valid_usr() {
 			return !get_me().host.includes(HOSTMASK);
 	}
 
@@ -81,9 +82,10 @@ kiwi.plugin('test', function(kiwi, log){
 				kiwi.showView(null);
 				return;
 			},
-			pwdErrState: function(state) {
+			pwdErrState: function(visible) {
 				var err = document.querySelector("#errormsg");
-				state === "on" ? err.style.visibility === "visible" : err.style.visibility = "hidden";
+				visible? err.style.visibility = "visible" : err.style.visibility = "hidden";
+				return;
 			},
 			valid_passwords: function(p1, p2) {
 				return p1 === p2;
@@ -93,11 +95,11 @@ kiwi.plugin('test', function(kiwi, log){
 				var pwd1 = this.password1.replace(/(\r\n|\n|\r)/gm,"");
 				var pwd2 = this.password2.replace(/(\r\n|\n|\r)/gm,"");
 				if(!this.valid_passwords(pwd1, pwd2)) {
-					this.pwdErrState("on");
+					this.pwdErrState(true);
 					return false;
 				}
 				else {
-					this.pwdErrState("off");
+					this.pwdErrState(false);
 					var message = '/MSG Nickserv REGISTER '+pwd1+' '+email;
 					kiwi.state.$emit('input.raw', message);
 					return true;
@@ -116,7 +118,7 @@ kiwi.plugin('test', function(kiwi, log){
 				kiwi.showView(null);
 			},
 		}
-	});
+	});//end err_page
 
 	///////////////////
 	//begin script
@@ -124,17 +126,19 @@ kiwi.plugin('test', function(kiwi, log){
 
 	kiwi.on('message.new', function(event, nan){
 		console.log(event.message);
-		if(event.message.includes(this.my_nick()+" is now registered to")) {
-			alert('Congratulations you are now Registered on the tripsit irc network. ')
-		}
 		if(event.message === COMMAND && event.nick === my_nick()) {
-			if(valid_usr() && confirm("Would you like to register? Register to get access to our entire network!")){
+			if(valid_usr()) {
+				if(confirm("Would you like to register? Register to get access to our entire network!")){
 					kiwi.showView('my_form');
-			}
-			else {
+				}
+				else {
 					kiwi.showView('err_page');
-			}
-		}//end command event
+				}
+			}//end if valid user
+		}//end if command event
+		else if(event.message.includes(""+my_nick()+" is now registered to")) { 
+				alert('Congratulations you are now Registered on the tripsit irc network. ');
+		}//end else if user now registered event
 	});//end kiwi.on()
 });//end plugin()
 </script>
