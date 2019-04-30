@@ -37,7 +37,7 @@
 <template id="error_page">
 	<div style="text-align: center;" class="kiwi-welcome-simple-channel">
 		<h1>ERROR</h1>
-		<p class="kiwi-welcome-simple-error">You are not elegible to register at this time. If this is your first time here you must wait 15 mins after joining before you can register.Guest users can still avail of our #welcome and #tripsit channels.</p>
+		<p class="kiwi-welcome-simple-error">You are not elegible to register at this time. If you are already registered.....well duuh! If this is your first time here you must wait 15 mins after joining before you can register. Guest users can still avail of our #welcome and #tripsit channels.</p>
 		<button class="u-button" @click="close_err">Close</button>
 	</div>
 </template>
@@ -74,9 +74,8 @@ kiwi.plugin('test', function(kiwi, log){
 		methods: {
 			onformSubmit: function(e) {
 				e.preventDefault();
-				if( this.register_me() ) {
+				if(this.register_me()) {
 					this.close_reg();
-					alert('form submitted');
 				}
 			},
 			close_reg: function() {
@@ -121,12 +120,11 @@ kiwi.plugin('test', function(kiwi, log){
 		}
 	});//end err_page
 
-	///////////////////
+	/////////////////// has too many accounts registered. #### IMPORTANT REMEMBER TO OUTPUT THIS MESSAGE
 	//begin script
 	////////////////// �MrMeeseeks� is now registered to �mrmeeseeks@rickandmorty.com�, with the password �lookatme�.
 
 	kiwi.on('message.new', function(event, nan){
-		console.log(event.message);
 		if(event.message === COMMAND && event.nick === my_nick()) {
 			if(valid_usr()) {
 				if(confirm("Would you like to register? Register to get access to our entire network!")){
@@ -138,7 +136,7 @@ kiwi.plugin('test', function(kiwi, log){
 			}
 		}//end if command event
 		else if(event.message.includes(""+my_nick()+" is now registered to")) {
-				alert('Congratulations you are now Registered on the tripsit irc network. ');
+				alert('Congratulations!\n'+event.message);
 		}//end else if user now registered event
 	});//end kiwi.on()
 });//end plugin()
