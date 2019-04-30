@@ -1,0 +1,143 @@
+<template id="register-pop">
+	<form @submit="onformSubmit" id="myform" style="
+		position: absolute;
+		width: 50%;
+		height: 20%;
+		left: 25%;">
+		<h1>Register</h1>
+		<p>Register with Tripsit.me to access all of our social channels</p>
+		<div>
+    	<label for="email">Email:</label><br>
+    	<input kiwi-welcome-simple type="email" v-model="email">
+		</div>
+		<div>
+    	<label for="pass1">Password (8 characters minimum):</label><br>
+    	<input class="kiwi-welcome-simple-password" type="password" v-model="password1" minlength="8" required>
+		</div>
+		<p id="errormsg" class="kiwi-welcome-simple-error" style="
+			color: red;
+			float: right;
+			visibility: hidden;">
+		</p>
+		<div>
+    	<label for="pass2">Confirm Password:</label><br>
+    	<input class="kiwi-welcome-simple-password" type="password" v-model="password2" minlength="8" required>
+		</div>
+		<div>
+			<button type="submit">Sign in</button>
+			<button @click="close_reg">Close</button>
+		</div>
+	</form>
+</template>
+
+
+<template id="error_page">
+	<div style="text-align: center;" class="kiwi-welcome-simple-channel">
+		<h1>ERROR</h1>
+		<p class="kiwi-welcome-simple-error">You are not elegible to register at this time. If this is your first time here you must wait 15 mins after joining before you can register.Guest users can still avail of our #welcome and #tripsit channels.</p>
+		<button @click="close_err">Close</button>
+	</div>
+</template>
+
+///////################################################################################################################################################################################\\\\\\\\\\
+
+<script>
+kiwi.plugin('test', function(kiwi, log){
+
+	var HOSTMASK = 'tripsit/';
+	var COMMAND = 'registerme';
+
+	var get_me = function() {
+		return kiwi.state.getActiveNetwork().currentUser();
+	}
+
+	var my_nick = function() {
+		return kiwi.state.getActiveNetwork().currentUser().nick;
+	}
+
+	var valid_usr = function() {
+			return get_me().host.includes(HOSTMASK) ? false : true;
+	}
+
+	kiwi.addView('my_form', {
+		template: "#register-pop",
+		data: function() {
+			return {
+				email: '',
+				password1: '',
+				password2: '',
+			};
+		},
+		methods: {
+			onformSubmit: function(e) {
+				e.preventDefault();
+				if( this.register_me() ) {
+					this.close_reg();
+					alert('form submitted');
+				}
+			},
+			close_reg: function() {
+				kiwi.showView(null);
+				return;
+			},
+			pwderrState: function(state) {
+				var err = document.querySelector("#errormsg");
+				err.innerHTML = "Passwords Must Match";
+				err.style.float = "right";
+				state === "on" ? err.style.visibility === "visible" : err.style.visibility = "hidden";
+			},
+			valid_passwords: function(p1, p2) {
+				return p1 === p2;
+			},
+			register_me: function() {
+				var email = this.email.replace(/(\r\n|\n|\r)/gm,"");
+				var pwd1 = this.password1.replace(/(\r\n|\n|\r)/gm,"");
+				var pwd2 = this.password2.replace(/(\r\n|\n|\r)/gm,"");
+				if(!this.valid_passwords(pwd1, pwd2)) {
+					this.pwderrState("on");
+					return false;
+				}
+				else {
+					this.pwderrState("off");
+					var message = '/MSG Nickserv REGISTER '+pwd1+' '+email;
+					kiwi.state.$emit('input.raw', message);
+					return true;
+				}
+			},
+		},
+	});//end my_form
+
+	kiwi.addView('err_page', {
+		template: '#error_page',
+		data: function(){
+			return {};
+		},
+		methods: {
+			close_err: function(){
+				kiwi.showView(null);
+			},
+		}
+	});
+
+	///////////////////
+	//begin script
+	////////////////// �MrMeeseeks� is now registered to �mrmeeseeks@rickandmorty.com�, with the password �lookatme�.
+
+	kiwi.on('message.new', function(event, nan){
+		console.log(event.message);
+		if(event.message.includes(this.my_nick()+" is now registered to")) {
+			alert('Congratulations you are now Registered on the tripsit irc network. ')
+		}
+		if(event.message === COMMAND && event.nick === my_nick()) {
+			if(valid_usr()){
+				if(confirm("Would you like to register? Register to get access to our entire network!")) {
+					kiwi.showView('my_form');
+				}
+			}
+			else {
+				kiwi.showView('err_page');
+			}
+		}
+	});
+});//end plugin()
+</script>
