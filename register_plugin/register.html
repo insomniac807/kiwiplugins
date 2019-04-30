@@ -25,9 +25,10 @@
     	<label for="pass2">Confirm Password:</label><br>
     	<input class="kiwi-welcome-simple-password" type="password" v-model="password2" minlength="8" required>
 		</div>
+		<br>
 		<div>
-			<button type="submit">Register</button>
-			<button @click="close_reg">Close</button>
+			<button class="u-button" type="submit">Register</button>
+			<button class="u-button" @click="close_reg">Close</button>
 		</div>
 	</form>
 </template>
@@ -37,7 +38,7 @@
 	<div style="text-align: center;" class="kiwi-welcome-simple-channel">
 		<h1>ERROR</h1>
 		<p class="kiwi-welcome-simple-error">You are not elegible to register at this time. If this is your first time here you must wait 15 mins after joining before you can register.Guest users can still avail of our #welcome and #tripsit channels.</p>
-		<button @click="close_err">Close</button>
+		<button class="u-button" @click="close_err">Close</button>
 	</div>
 </template>
 
@@ -131,12 +132,12 @@ kiwi.plugin('test', function(kiwi, log){
 				if(confirm("Would you like to register? Register to get access to our entire network!")){
 					kiwi.showView('my_form');
 				}
-				else {
-					kiwi.showView('err_page');
-				}
 			}//end if valid user
+			else {
+				kiwi.showView('err_page');
+			}
 		}//end if command event
-		else if(event.message.includes(""+my_nick()+" is now registered to")) { 
+		else if(event.message.includes(""+my_nick()+" is now registered to")) {
 				alert('Congratulations you are now Registered on the tripsit irc network. ');
 		}//end else if user now registered event
 	});//end kiwi.on()
